@@ -1,0 +1,42 @@
+services:
+  mongo:
+    image: mongo:6
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  product_service:
+    build: ./product_service
+    ports:
+      - "8000:8000"
+    environment:
+      - MONGO_URI=${MONGO_URI:-mongodb://mongo:27017}
+      - DB_NAME=${DB_NAME:-ecommerce}
+    depends_on:
+      - mongo
+
+  user_service:
+    build: ./user_service
+    ports:
+      - "8001:8000"
+    environment:
+      - MONGO_URI=${MONGO_URI:-mongodb://mongo:27017}
+      - DB_NAME=${DB_NAME:-ecommerce}
+      - JWT_SECRET=${JWT_SECRET:-change-me}
+    depends_on:
+      - mongo
+
+  order_service:
+    build: ./order_service
+    ports:
+      - "8002:8000"
+    environment:
+      - MONGO_URI=${MONGO_URI:-mongodb://mongo:27017}
+      - DB_NAME=${DB_NAME:-ecommerce}
+    depends_on:
+      - mongo
+
+volumes:
+  mongo_data:
